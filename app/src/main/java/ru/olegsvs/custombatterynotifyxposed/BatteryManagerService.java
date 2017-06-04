@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -18,14 +20,7 @@ import ru.olegsvs.custombatterynotifyxposed.xposed.CustomBatteryIconXposed;
 
 public class BatteryManagerService extends Service{
     private int iconRes[] = {
-            R.drawable.gn_stat_sys_battery_0,
-            R.drawable.gn_stat_sys_battery_20,
-            R.drawable.gn_stat_sys_battery_30,
-            R.drawable.gn_stat_sys_battery_50,
-            R.drawable.gn_stat_sys_battery_60,
-            R.drawable.gn_stat_sys_battery_80,
-            R.drawable.gn_stat_sys_battery_90,
-            R.drawable.gn_stat_sys_battery_100
+            R.drawable.gn_stat_sys_battery
     };
     private final int NOTIFICATION_CUSTOM_BATTERY = 444;
     private int BAT_CAPACITY = 0;
@@ -76,8 +71,6 @@ public class BatteryManagerService extends Service{
                 String lastTypeBattery = sharedPref.getString("lastTypeBattery", "null");
                 String lastStateBattery = sharedPref.getString("lastStateBattery", "null");
                 mBatteryManager = new BatteryManager(lastTypeBattery, lastStateBattery);
-//                mBatteryManager = new BatteryManager("/sys/class/power_supply/BAT0/present","/sys/class/power_supply/BAT0/status");
-
             }
             if(mBatteryManager.isSupport) {
                 Log.w("TGM", "BatteryManagerService onStartCommand: mBatteryManager.isSupport = " + mBatteryManager.isSupport);
@@ -114,8 +107,6 @@ public class BatteryManagerService extends Service{
 
     private void createNotify() {
         try {
-            int color = 0xff123456;
-
             myHandler = new Handler();
             Log.w("TGM", "handler started");
             Log.w("TGM", "state : " + getResults());
@@ -124,23 +115,25 @@ public class BatteryManagerService extends Service{
                 @Override
                 public void run() {
                     if(IS_STARTED) {
+                        if(c > 100) c = 0;
                         Log.i("TGM", "run: getResults" + getResults() + "BAT " + BAT_CAPACITY);
-                        if(BAT_CAPACITY <= 5) c = 0;
-                        else if(BAT_CAPACITY <= 15) c = 1;
-                        else if(BAT_CAPACITY <= 40) c = 2;
-                        else if(BAT_CAPACITY <= 55) c = 3;
-                        else if(BAT_CAPACITY <= 70) c = 4;
-                        else if(BAT_CAPACITY <= 85) c = 5;
-                        else if(BAT_CAPACITY <= 95) c = 6;
-                        else if(BAT_CAPACITY <= 100) c = 7;
+                        int imageKey = 0;
+                        Log.i("TGM", "run: c " + c);
+                        for (int j = c; j >= 0; j--) {
+                            String url = "drawable/"+"gn_stat_sys_battery_"+j;
+                            imageKey = getResources().getIdentifier(url, "drawable", getPackageName());
+                            if(imageKey != 0) break;
+                        }
+                        Log.i("TGM", "run: imageKey " + imageKey);
                         Intent intent = new Intent(MainActivity.ICON_CHANGED);
                         intent.putExtra(MainActivity.EXTRA_ICON_TYPE, 0);
-                        intent.putExtra(MainActivity.EXTRA_ICON_VALUE, c);
+                        intent.putExtra(MainActivity.EXTRA_ICON_VALUE, imageKey);
                         intent.putExtra("visible", true);
+                        c++;
                         intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
                         sendBroadcast(intent);
                         if(++count%20 == 0) Runtime.getRuntime().gc();
-                        myHandler.postDelayed(runnable, interval);
+                        myHandler.postDelayed(runnable, 100);
                     }
                 }
 

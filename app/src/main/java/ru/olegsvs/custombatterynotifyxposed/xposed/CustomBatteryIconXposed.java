@@ -4,19 +4,26 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.XModuleResources;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
 
 import java.util.Objects;
 
+import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ru.olegsvs.custombatterynotifyxposed.MainActivity;
 import ru.olegsvs.custombatterynotifyxposed.R;
+
+import static android.support.v4.content.ContextCompat.getDrawable;
 
 public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
     public static final String PACKAGE_SYSTEMUI = "com.android.systemui";
@@ -25,19 +32,17 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
     public static final String PACKAGE_OWN = "ru.olegsvs.custombatterynotifyxposed";
     private static final String MAIN_ACTIVITY = PACKAGE_OWN + ".MainActivity";
     private static final String TAG = "CustomBatteryNotifyXposed";
+    private static String MODULE_PATH = null;
 
     private static final String mainFilePath = "/sys/class/power_supply/battery/";
     private static final String capacityFilePath = "/sys/class/power_supply/battery/capacity-smb";
     private static final String statusFilePath = "/sys/class/power_supply/battery/status-smb";
     private int mState = 0;
-    private int mMicrophone = 0;
     private Object mService;
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-                updateHeadset(intent);
-            } else if (intent.getAction().equals(MainActivity.ICON_CHANGED)) {
+            if (intent.getAction().equals(MainActivity.ICON_CHANGED)) {
                 updateHeadsetIcon(intent);
             }
         }
@@ -86,30 +91,22 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
                 Context context = (Context) XposedHelpers.getObjectField(param.thisObject, "mContext");
 
                 mService = XposedHelpers.getObjectField(param.thisObject, "mService");
-                setIcon(SLOT_BATTERY_CUSTOM, R.drawable.gn_stat_sys_battery_0, 0, null);
+
+                setIcon(SLOT_BATTERY_CUSTOM, R.drawable.gn_stat_sys_battery_20, null);
                 setIconVisibility(SLOT_BATTERY_CUSTOM, false);
-//                for (int i = 0; i < 9000000; i++) {
-//
-//                    setIcon(SLOT_HEADSET, R.drawable.gn_stat_sys_battery_100, 0, null);
-//
-//
-//
-//                }
-//                setIcon(SLOT_HEADPHONE, ConfigUtils.icons().headphone, 0, null);
 
                 IntentFilter filter = new IntentFilter();
-                filter.addAction(Intent.ACTION_HEADSET_PLUG);
                 filter.addAction(MainActivity.ICON_CHANGED);
                 context.registerReceiver(mIntentReceiver, filter, null, (Handler) XposedHelpers.getObjectField(param.thisObject, "mHandler"));
             }
         });
     }
 
-    public void setIcon(String slot, int iconId, int iconLevel, String contentDescription) {
+    public void setIcon(String slot, int iconId, String contentDescription) {
         try {
             Object svc = XposedHelpers.callMethod(mService, "getService");
             if (svc != null) {
-                XposedHelpers.callMethod(svc, "setIcon", slot, PACKAGE_OWN, iconId, iconLevel, contentDescription);
+                XposedHelpers.callMethod(svc, "setIcon", slot, PACKAGE_OWN, iconId, 0, contentDescription);
             }
         } catch (Throwable ex) {
             // system process is dead anyway.
@@ -131,7 +128,6 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
 
     private void updateHeadset(Intent intent) {
         mState = intent.getIntExtra("state", 0);
-        mMicrophone = intent.getIntExtra("microphone", 0);
 
         updateIconVisibilities(intent.getBooleanExtra("visible",false));
     }
@@ -142,8 +138,7 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
 
     private void updateHeadsetIcon(Intent intent) {
         int value = intent.getIntExtra(MainActivity.EXTRA_ICON_VALUE, 0);
-
-        setIcon(SLOT_BATTERY_CUSTOM , MainActivity.ICONS[value], 0, null);
+        setIcon(SLOT_BATTERY_CUSTOM , value, null);
 
         updateIconVisibilities(intent.getBooleanExtra("visible",false));
     }
