@@ -1,11 +1,16 @@
 package ru.olegsvs.custombatterynotifyxposed;
 
+import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -19,17 +24,16 @@ import android.widget.Toast;
 
 import ru.olegsvs.custombatterynotifyxposed.xposed.CustomBatteryIconXposed;
 
-//import com.crashlytics.android.Crashlytics;
-//import io.fabric.sdk.android.Fabric;
+import static ru.olegsvs.custombatterynotifyxposed.xposed.CustomBatteryIconXposed.PACKAGE_OWN;
 
 public class SettingsActivity extends AppCompatActivity {
     public static String TAG = SettingsActivity.class.getSimpleName();
-    
+    private static final String HIDE_APP_ICON = "hide_app_icon";
     private BatteryManager mBatteryManager = null;
     public Spinner spinnerBatteries;
     public Spinner capacityFiles;
     public Spinner statusFiles;
-
+    private SharedPreferences mPreferences;
     public CheckBox chbAutostartService;
     public SharedPreferences sharedPref;
     public Button intervalSetBTN;
@@ -81,6 +85,14 @@ public class SettingsActivity extends AppCompatActivity {
         setupSpinners();
         Log.i(SettingsActivity.TAG, "onCreate:         loadParams");
         loadParams();
+        if(!isActivated()) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    public boolean isActivated() {
+        return false;
     }
 
     public void setupSpinners() {
@@ -202,6 +214,22 @@ public class SettingsActivity extends AppCompatActivity {
         editor.commit();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.hide_app_icon).setChecked(getPreferences().getBoolean(HIDE_APP_ICON, false));
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @SuppressWarnings("deprecation")
+    @SuppressLint("WorldReadableFiles")
+    public SharedPreferences getPreferences() {
+        if (mPreferences != null)
+            return mPreferences;
+        mPreferences = getSharedPreferences("ru.olegsvs.custombatterynotifyxposed.shared_preferences", MODE_WORLD_READABLE);
+        return mPreferences;
+    }
+
     public void dismissNotifyClick(View view) {
         if(BatteryManagerService.isMyServiceRunning()) {
             mBatteryManager = null;
@@ -214,5 +242,22 @@ public class SettingsActivity extends AppCompatActivity {
         intent.putExtra("visible", false);
         intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
         sendBroadcast(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.hide_app_icon) {
+            boolean checked = !item.isChecked();
+            item.setChecked(checked);
+            getPreferences().edit().putBoolean(HIDE_APP_ICON, checked).apply();
+            int mode = checked ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED : PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+            getPackageManager().setComponentEnabledSetting(new ComponentName(this,PACKAGE_OWN + ".MainShortcut" ), mode, PackageManager.DONT_KILL_APP);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void changeIconCl(View v) {
+        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(intent);
     }
 }

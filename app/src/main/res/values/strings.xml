@@ -7,14 +7,8 @@
     <string name="refund_warning">If you don\'t know what is Xposed, you can get a refund through the Play Store.</string>
     <string name="play_store">Play Store</string>
     <string name="hide_app_icon">Hide app icon</string>
-    <string name="bat_0">Battery_0_level</string>
-    <string name="bat_20">Battery_20_level</string>
-    <string name="bat_30">Battery_30_level</string>
-    <string name="bat_50">Battery_50_level</string>
-    <string name="bat_60">Battery_60_level</string>
-    <string name="bat_80">Battery_80_level</string>
-    <string name="bat_90">Battery_90_level</string>
-    <string name="bat_100">Battery_100_level</string>
+    <string name="amigoos">AmigoOs_style</string>
+    <string name="custom">Custom_style</string>
     <string name="chbAutoStartService">Autostart service at boot?</string>
     <string name="tvBatteries">Select battery path</string>
     <string name="intervalTV">Interval of scanning battery state, secs</string>
@@ -24,4 +18,5 @@
     <string name="statusTV">Status battery file is</string>
     <string name="showNotifyButton">Show notify</string>
     <string name="dismissNotifyButton">Dismiss notify</string>
+    <string name="changeIconButton">Change icon</string>
 </resources>

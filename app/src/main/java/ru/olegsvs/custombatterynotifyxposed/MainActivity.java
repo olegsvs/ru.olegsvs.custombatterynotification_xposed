@@ -2,17 +2,20 @@ package ru.olegsvs.custombatterynotifyxposed;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
-import ru.olegsvs.custombatterynotifyxposed.xposed.CustomBatteryIconXposed;
+import android.widget.Toast;
 
 import static ru.olegsvs.custombatterynotifyxposed.xposed.CustomBatteryIconXposed.PACKAGE_OWN;
 
@@ -21,21 +24,15 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
     public static final String ICON_CHANGED = "ru.olegsvs.custombatterynotifyxposed.action.ICON_CHANGED";
     public static final String EXTRA_ICON_TYPE = "extra.ICON_TYPE";
     public static final String EXTRA_ICON_VALUE = "extra.ICON_VALUE";
-    private static final String HIDE_APP_ICON = "hide_app_icon";
+    private BatteryManager mBatteryManager = null;
     private SharedPreferences mPreferences;
     private static final String TAG = "MainActivity";
     public static int[] ICONS;
-
+    SharedPreferences sharedPref;
     static {
         ICONS = new int[] {
-                R.drawable.gn_stat_sys_battery_0,
-                R.drawable.gn_stat_sys_battery_20,
                 R.drawable.gn_stat_sys_battery_30,
-                R.drawable.gn_stat_sys_battery_50,
-                R.drawable.gn_stat_sys_battery_60,
-                R.drawable.gn_stat_sys_battery_80,
-                R.drawable.gn_stat_sys_battery_90,
-                R.drawable.gn_stat_sys_battery_100
+                R.drawable.stat_sys_battery_37
         };
     }
 
@@ -47,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
         setContentView(R.layout.activity_main);
 
         SharedPreferences preferences = getPreferences();
+        sharedPref = getSharedPreferences("Settings", Context.MODE_PRIVATE);
 
         IconSelectionView batteryChooseView = (IconSelectionView) findViewById(R.id.battery_choose);
         batteryChooseView.setTitle("Battery icon");
@@ -76,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
             } else {
                 warningText.setText(R.string.xposed_required);
             }
+        } else {
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -90,13 +91,29 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
 
     @Override
     public void onSelect(IconSelectionView view, int position) {
-//        Intent intent = new Intent(ICON_CHANGED);
-//        intent.putExtra(EXTRA_ICON_TYPE, view.getId() == R.id.battery_choose ? 0 : 1);
-//        intent.putExtra(EXTRA_ICON_VALUE, position);
-//        intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
-//        sendBroadcast(intent);
-        Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
-        startActivity(intent);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("iconValue" , position);
+        editor.apply();
+        editor.commit();
+        showNotifyClick2(null);
+    }
+
+
+    public void showNotifyClick2(View v){
+        try {
+            Log.i("TGM", "showNotifyClick2: clicked");
+            mBatteryManager = null;
+            Intent intent = new Intent(getApplicationContext(), BatteryManagerService.class);
+            stopService(intent);
+            if(BatteryManagerService.isMyServiceRunning()) {
+                stopService(intent);
+                startService(intent);
+            } else startService(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+//            Crashlytics.logException(e);
+            Toast.makeText(this,e.toString(),Toast.LENGTH_LONG).show();
+        }
     }
 
     public boolean isActivated() {
@@ -117,20 +134,11 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.findItem(R.id.hide_app_icon).setChecked(getPreferences().getBoolean(HIDE_APP_ICON, false));
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.hide_app_icon) {
-            boolean checked = !item.isChecked();
-            item.setChecked(checked);
-            getPreferences().edit().putBoolean(HIDE_APP_ICON, checked).apply();
-            int mode = checked ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED : PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-            getPackageManager().setComponentEnabledSetting(new ComponentName(this,PACKAGE_OWN + ".MainShortcut" ), mode, PackageManager.DONT_KILL_APP);
-        }
         return super.onOptionsItemSelected(item);
     }
 }

@@ -31,12 +31,8 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
     private static final String PACKAGE_ANDROID = "android";
     public static final String PACKAGE_OWN = "ru.olegsvs.custombatterynotifyxposed";
     private static final String MAIN_ACTIVITY = PACKAGE_OWN + ".MainActivity";
-    private static final String TAG = "CustomBatteryNotifyXposed";
-    private static String MODULE_PATH = null;
+    private static final String SETTINGS_ACTIVITY = PACKAGE_OWN + ".SettingsActivity";
 
-    private static final String mainFilePath = "/sys/class/power_supply/battery/";
-    private static final String capacityFilePath = "/sys/class/power_supply/battery/capacity-smb";
-    private static final String statusFilePath = "/sys/class/power_supply/battery/status-smb";
     private int mState = 0;
     private Object mService;
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
@@ -55,6 +51,8 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
 
         if (!lpparam.packageName.equals(PACKAGE_OWN)) return;
         XposedHelpers.findAndHookMethod(MAIN_ACTIVITY, lpparam.classLoader, "isActivated", XC_MethodReplacement.returnConstant(true));
+        XposedHelpers.findAndHookMethod(SETTINGS_ACTIVITY, lpparam.classLoader, "isActivated", XC_MethodReplacement.returnConstant(true));
+
     }
 
     private void hookAndroid(XC_LoadPackage.LoadPackageParam lpparam) {

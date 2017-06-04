@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Statusbar Battery Icon</string>
+    <string name="module_not_activated">Пожалуйста, активируйте модуль xposed и перезапуститесь.\nНажмите для запуска Xposed Installer.</string>
+    <string name="xposed_required">Это приложение - модуль для Xposed и не будет без него работать.</string>
+    <string name="hide_app_icon">Спрятать иконку приложения</string>
+    <string name="rate">Rate</string>
+    <string name="thanks">Thank you for supporting the dev!</string>
+    <string name="refund_warning">If you don\'t know what is Xposed, you can get a refund through the Play Store.</string>
+    <string name="play_store">Play Store</string>
+    <string name="amigoos">AmigoOs_style</string>
+    <string name="custom">Custom_style</string>
+    <string name="chbAutoStartService">Автозапуск при загрузке Android?</string>
+    <string name="tvBatteries">Выберите путь к батарее</string>
+    <string name="intervalTV">Интервал скана состояния батарей, секунды</string>
+    <string name="intervalBTN">Установить</string>
+    <string name="intervalWarning">Укажите значение > 0!</string>
+    <string name="capacityTV">Заряд батареи в файле</string>
+    <string name="statusTV">Статус батареи в файле</string>
+    <string name="showNotifyButton">Показать уведомление</string>
+    <string name="dismissNotifyButton">Убрать уведомление</string>
+    <string name="changeIconButton">Изменить стиль иконки</string>
+
+</resources>

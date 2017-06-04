@@ -26,6 +26,7 @@ public class BatteryManagerService extends Service{
     private int BAT_CAPACITY = 0;
     private int count = 0;
     private int c = 0;
+    private int iconValue = 0;
     private static int interval = 2000;
     private final String PERCENT= "%";
     private final String UNRECOGNIZED_VALUES= "Unrecognized values";
@@ -53,6 +54,10 @@ public class BatteryManagerService extends Service{
         mBatteryManager = null;
         if(myHandler != null)
         myHandler.removeCallbacks(runnable);
+        Intent intent = new Intent(MainActivity.ICON_CHANGED);
+        intent.putExtra("visible", false);
+        intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
+        sendBroadcast(intent);
         Log.w("TGM", "BatteryManagerService onDestroy: BatteryManagerService destroy!");
     }
 
@@ -66,6 +71,7 @@ public class BatteryManagerService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         SharedPreferences sharedPref = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         Log.w("TGM", "onStartCommand: BatteryManagerService start");
+        iconValue = sharedPref.getInt("iconValue",0);
         if(intent != null) mBatteryManager = intent.getParcelableExtra("BatteryManager");
             if(mBatteryManager == null) {
                 String lastTypeBattery = sharedPref.getString("lastTypeBattery", "null");
@@ -115,25 +121,28 @@ public class BatteryManagerService extends Service{
                 @Override
                 public void run() {
                     if(IS_STARTED) {
-                        if(c > 100) c = 0;
                         Log.i("TGM", "run: getResults" + getResults() + "BAT " + BAT_CAPACITY);
                         int imageKey = 0;
-                        Log.i("TGM", "run: c " + c);
-                        for (int j = c; j >= 0; j--) {
-                            String url = "drawable/"+"gn_stat_sys_battery_"+j;
+                        for (int j = BAT_CAPACITY; j >= 0; j--) {
+                            String url = null;
+                            if(iconValue == 0) url = "drawable/"+"gn_stat_sys_battery_"+j;
+                            else url = "drawable/"+"stat_sys_battery_"+j;
                             imageKey = getResources().getIdentifier(url, "drawable", getPackageName());
                             if(imageKey != 0) break;
+                        }
+                        if(imageKey == 0) {
+                            Log.i("TGM", "run: imageKey is 0!");
+                            stopSelf();
                         }
                         Log.i("TGM", "run: imageKey " + imageKey);
                         Intent intent = new Intent(MainActivity.ICON_CHANGED);
                         intent.putExtra(MainActivity.EXTRA_ICON_TYPE, 0);
                         intent.putExtra(MainActivity.EXTRA_ICON_VALUE, imageKey);
                         intent.putExtra("visible", true);
-                        c++;
                         intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
                         sendBroadcast(intent);
                         if(++count%20 == 0) Runtime.getRuntime().gc();
-                        myHandler.postDelayed(runnable, 100);
+                        myHandler.postDelayed(runnable, interval);
                     }
                 }
 

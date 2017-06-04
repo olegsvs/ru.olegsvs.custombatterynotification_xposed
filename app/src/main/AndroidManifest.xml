@@ -18,19 +18,24 @@
             android:name="xposeddescription"
             android:value="Show battery icon in statusbar on devices with two batteries" />
 
-        <activity android:name="ru.olegsvs.custombatterynotifyxposed.MainActivity">
+        <activity android:name="ru.olegsvs.custombatterynotifyxposed.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS"/>
             </intent-filter>
         </activity>
-        <activity android:name="ru.olegsvs.custombatterynotifyxposed.SettingsActivity" >
+        <activity android:name="ru.olegsvs.custombatterynotifyxposed.MainActivity" >
+            android:parentActivityName="ru.olegsvs.custombatterynotifyxposed.SettingsActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ru.olegsvs.custombatterynotifyxposed.SettingsActivity" />
         </activity>
         <activity-alias
             android:name=".MainShortcut"
             android:enabled="true"
-            android:targetActivity="ru.olegsvs.custombatterynotifyxposed.MainActivity">
+            android:targetActivity="ru.olegsvs.custombatterynotifyxposed.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
