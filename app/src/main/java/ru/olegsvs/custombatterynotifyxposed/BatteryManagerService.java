@@ -26,7 +26,6 @@ public class BatteryManagerService extends Service{
             R.drawable.gn_stat_sys_battery_80,
             R.drawable.gn_stat_sys_battery_90,
             R.drawable.gn_stat_sys_battery_100
-
     };
     private final int NOTIFICATION_CUSTOM_BATTERY = 444;
     private int BAT_CAPACITY = 0;
@@ -74,13 +73,13 @@ public class BatteryManagerService extends Service{
         Log.w("TGM", "onStartCommand: BatteryManagerService start");
         if(intent != null) mBatteryManager = intent.getParcelableExtra("BatteryManager");
             if(mBatteryManager == null) {
-//                String lastTypeBattery = sharedPref.getString("lastTypeBattery", "null");
-//                String lastStateBattery = sharedPref.getString("lastStateBattery", "null");
-//                mBatteryManager = new BatteryManager(lastTypeBattery, lastStateBattery);
-                mBatteryManager = new BatteryManager("/sys/class/power_supply/BAT0/present","/sys/class/power_supply/BAT0/status");
+                String lastTypeBattery = sharedPref.getString("lastTypeBattery", "null");
+                String lastStateBattery = sharedPref.getString("lastStateBattery", "null");
+                mBatteryManager = new BatteryManager(lastTypeBattery, lastStateBattery);
+//                mBatteryManager = new BatteryManager("/sys/class/power_supply/BAT0/present","/sys/class/power_supply/BAT0/status");
 
             }
-            if(true /*mBatteryManager.isSupport*/) {
+            if(mBatteryManager.isSupport) {
                 Log.w("TGM", "BatteryManagerService onStartCommand: mBatteryManager.isSupport = " + mBatteryManager.isSupport);
 
                 interval = 1000 * sharedPref.getInt("interval", 2);
@@ -88,8 +87,7 @@ public class BatteryManagerService extends Service{
                 createNotify();
                 Log.w("TGM", "onStartCommand: create and show notification");
                 return super.onStartCommand(intent, flags, startId);
-            }
-//            } else stopSelf();
+            } else stopSelf();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -126,16 +124,23 @@ public class BatteryManagerService extends Service{
                 @Override
                 public void run() {
                     if(IS_STARTED) {
-                        if (c == 7) c = 0;
+                        Log.i("TGM", "run: getResults" + getResults() + "BAT " + BAT_CAPACITY);
+                        if(BAT_CAPACITY <= 5) c = 0;
+                        else if(BAT_CAPACITY <= 15) c = 1;
+                        else if(BAT_CAPACITY <= 40) c = 2;
+                        else if(BAT_CAPACITY <= 55) c = 3;
+                        else if(BAT_CAPACITY <= 70) c = 4;
+                        else if(BAT_CAPACITY <= 85) c = 5;
+                        else if(BAT_CAPACITY <= 95) c = 6;
+                        else if(BAT_CAPACITY <= 100) c = 7;
                         Intent intent = new Intent(MainActivity.ICON_CHANGED);
                         intent.putExtra(MainActivity.EXTRA_ICON_TYPE, 0);
                         intent.putExtra(MainActivity.EXTRA_ICON_VALUE, c);
-                        c++;
+                        intent.putExtra("visible", true);
                         intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
                         sendBroadcast(intent);
-                        Log.i("TGM", "run: getResults" + getResults() + "BAT " + BAT_CAPACITY);
                         if(++count%20 == 0) Runtime.getRuntime().gc();
-                        myHandler.postDelayed(runnable, 1000);
+                        myHandler.postDelayed(runnable, interval);
                     }
                 }
 

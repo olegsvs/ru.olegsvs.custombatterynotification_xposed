@@ -121,7 +121,7 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
         try {
             Object svc = XposedHelpers.callMethod(mService, "getService");
             if (svc != null) {
-                XposedHelpers.callMethod(svc, "setIconVisibility", slot, true);
+                XposedHelpers.callMethod(svc, "setIconVisibility", slot, visible);
             }
         } catch (Throwable ex) {
             // system process is dead anyway.
@@ -133,11 +133,11 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
         mState = intent.getIntExtra("state", 0);
         mMicrophone = intent.getIntExtra("microphone", 0);
 
-        updateIconVisibilities();
+        updateIconVisibilities(intent.getBooleanExtra("visible",false));
     }
 
-    private void updateIconVisibilities() {
-        setIconVisibility(SLOT_BATTERY_CUSTOM, mState != 0 && mMicrophone == 1);
+    private void updateIconVisibilities(boolean visible) {
+        setIconVisibility(SLOT_BATTERY_CUSTOM, visible);
     }
 
     private void updateHeadsetIcon(Intent intent) {
@@ -145,6 +145,6 @@ public class CustomBatteryIconXposed implements IXposedHookLoadPackage {
 
         setIcon(SLOT_BATTERY_CUSTOM , MainActivity.ICONS[value], 0, null);
 
-        updateIconVisibilities();
+        updateIconVisibilities(intent.getBooleanExtra("visible",false));
     }
 }

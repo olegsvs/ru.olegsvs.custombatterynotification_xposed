@@ -15,4 +15,13 @@
     <string name="bat_80">Battery_80_level</string>
     <string name="bat_90">Battery_90_level</string>
     <string name="bat_100">Battery_100_level</string>
+    <string name="chbAutoStartService">Autostart service at boot?</string>
+    <string name="tvBatteries">Select battery path</string>
+    <string name="intervalTV">Interval of scanning battery state, secs</string>
+    <string name="intervalBTN">Apply</string>
+    <string name="intervalWarning">Set value > 0!</string>
+    <string name="capacityTV">Capacity battery file is</string>
+    <string name="statusTV">Status battery file is</string>
+    <string name="showNotifyButton">Show notify</string>
+    <string name="dismissNotifyButton">Dismiss notify</string>
 </resources>

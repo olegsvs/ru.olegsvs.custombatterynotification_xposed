@@ -46,10 +46,6 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(getApplicationContext(), BatteryManagerService.class);
-//        stopService(intent);
-        startService(intent);
-
         SharedPreferences preferences = getPreferences();
 
         IconSelectionView batteryChooseView = (IconSelectionView) findViewById(R.id.battery_choose);
@@ -94,11 +90,13 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
 
     @Override
     public void onSelect(IconSelectionView view, int position) {
-        Intent intent = new Intent(ICON_CHANGED);
-        intent.putExtra(EXTRA_ICON_TYPE, view.getId() == R.id.battery_choose ? 0 : 1);
-        intent.putExtra(EXTRA_ICON_VALUE, position);
-        intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
-        sendBroadcast(intent);
+//        Intent intent = new Intent(ICON_CHANGED);
+//        intent.putExtra(EXTRA_ICON_TYPE, view.getId() == R.id.battery_choose ? 0 : 1);
+//        intent.putExtra(EXTRA_ICON_VALUE, position);
+//        intent.setPackage(CustomBatteryIconXposed.PACKAGE_SYSTEMUI);
+//        sendBroadcast(intent);
+        Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
+        startActivity(intent);
     }
 
     public boolean isActivated() {

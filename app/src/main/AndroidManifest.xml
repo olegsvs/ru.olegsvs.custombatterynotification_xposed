@@ -25,7 +25,8 @@
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS"/>
             </intent-filter>
         </activity>
-
+        <activity android:name="ru.olegsvs.custombatterynotifyxposed.SettingsActivity" >
+        </activity>
         <activity-alias
             android:name=".MainShortcut"
             android:enabled="true"

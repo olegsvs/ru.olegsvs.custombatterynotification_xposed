@@ -53,12 +53,11 @@ public class BatteryManager implements Parcelable {
     };
 
     private boolean isSupportCheck(String capacityBattery) {
-//        File file = new File(capacityBattery);
-//        if (file.exists()) {
-//            return isSupport = true;
-//        }
-//        return isSupport = false;
-        return true;
+        File file = new File(capacityBattery);
+        if (file.exists()) {
+            return isSupport = true;
+        }
+        return isSupport = false;
     }
 
     public String getCapacity() {
