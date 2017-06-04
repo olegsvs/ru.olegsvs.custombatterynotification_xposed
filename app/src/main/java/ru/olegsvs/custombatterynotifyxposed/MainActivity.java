@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity implements IconSelectionView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(getApplicationContext(), BatteryManagerService.class);
+//        stopService(intent);
+        startService(intent);
+
         SharedPreferences preferences = getPreferences();
 
         IconSelectionView batteryChooseView = (IconSelectionView) findViewById(R.id.battery_choose);
