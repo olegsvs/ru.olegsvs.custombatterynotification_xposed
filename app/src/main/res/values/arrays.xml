@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="icons_name">
+        <item>@string/bat_0</item>
+        <item>@string/bat_20</item>
+        <item>@string/bat_30</item>
+        <item>@string/bat_50</item>
+        <item>@string/bat_60</item>
+        <item>@string/bat_80</item>
+        <item>@string/bat_90</item>
+        <item>@string/bat_100</item>
+    </string-array>
+</resources>

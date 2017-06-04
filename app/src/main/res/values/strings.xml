@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Statusbar Battery Icon</string>
+    <string name="module_not_activated">Please activate the module and restart.\nTap to open Xposed Installer.</string>
+    <string name="xposed_required">This app is an Xposed module and can\'t do anything without Xposed.</string>
+    <string name="rate">Rate</string>
+    <string name="thanks">Thank you for supporting the dev!</string>
+    <string name="refund_warning">If you don\'t know what is Xposed, you can get a refund through the Play Store.</string>
+    <string name="play_store">Play Store</string>
+    <string name="hide_app_icon">Hide app icon</string>
+    <string name="bat_0">Battery_0_level</string>
+    <string name="bat_20">Battery_20_level</string>
+    <string name="bat_30">Battery_30_level</string>
+    <string name="bat_50">Battery_50_level</string>
+    <string name="bat_60">Battery_60_level</string>
+    <string name="bat_80">Battery_80_level</string>
+    <string name="bat_90">Battery_90_level</string>
+    <string name="bat_100">Battery_100_level</string>
+</resources>
